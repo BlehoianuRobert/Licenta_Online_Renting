@@ -1,0 +1,55 @@
+.superowner-stats-page {
+  padding: var(--spacing-2xl) 0;
+}
+
+.stats-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.stats-box {
+  background: #fff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stats-label {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.stats-box strong {
+  font-size: var(--font-size-2xl);
+  color: var(--text-primary);
+}
+
+.stats-table-wrapper {
+  background: #fff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  overflow-x: auto;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stats-table th,
+.stats-table td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.stats-table th {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}

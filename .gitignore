@@ -1,0 +1,27 @@
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Java / Maven
+online-rental-system-licenta/target/
+online-rental-system-licenta/.mvn/wrapper/maven-wrapper.jar
+
+# Local uploads/runtime
+uploads/
+online-rental-system-licenta/uploads/
+
+# Environment and secrets
+**/.env
+**/.env.*
+online-rental-system-licenta/src/main/resources/application.properties
+
+# Logs
+*.log
+jcef_*.log

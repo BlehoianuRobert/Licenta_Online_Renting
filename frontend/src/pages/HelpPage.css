@@ -1,0 +1,61 @@
+.help-page {
+  padding: var(--spacing-2xl) 0;
+}
+
+.help-hero {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.help-hero h1 {
+  margin: 0 0 var(--spacing-sm);
+}
+
+.help-hero p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.help-section {
+  background: #fff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
+}
+
+.help-section h2 {
+  margin: 0 0 var(--spacing-md);
+}
+
+.help-cards {
+  display: grid;
+  gap: var(--spacing-md);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.help-card {
+  background: #f8fafc;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+}
+
+.help-card h3 {
+  margin: 0 0 var(--spacing-xs);
+  font-size: var(--font-size-base);
+}
+
+.help-card p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.help-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--text-secondary);
+}
