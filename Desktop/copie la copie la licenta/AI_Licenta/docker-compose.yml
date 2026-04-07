@@ -1,0 +1,9 @@
+services:
+  ai-product-validator:
+    build: .
+    container_name: ai-product-validator
+    ports:
+      # Host 8001 avoids conflict when another stack already uses 8000 (e.g. other containers).
+      - "8001:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
