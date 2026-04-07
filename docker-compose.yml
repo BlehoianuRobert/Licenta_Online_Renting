@@ -1,0 +1,85 @@
+services:
+  image-ai:
+    build: ./online-rental-system-licenta/image-ai-service
+    container_name: online-rental-image-ai
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  mysql:
+    image: mysql:8.0
+    container_name: online-rental-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "12345"
+      MYSQL_DATABASE: online_rental_db
+    # Host 3307 avoids conflict when MySQL is already installed on Windows (port 3306).
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p12345"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  backend:
+    build:
+      context: ./online-rental-system-licenta
+    container_name: online-rental-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      image-ai:
+        condition: service_healthy
+    healthcheck:
+      # Use GET (not wget --spider / HEAD): only GET is permitAll on /api/v1/products/**
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8081/api/v1/products"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+    ports:
+      - "8081:8081"
+    environment:
+      APP_IMAGE_AI_BASE_URL: http://image-ai:8000
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/online_rental_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "12345"
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SERVER_PORT: "8081"
+      SPRING_APPLICATION_JSON: '{"file":{"upload-dir":"/app/uploads/images"}}'
+    volumes:
+      - backend_uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api/v1
+        # Set in project-root .env (see docker.env.example)
+        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY:-}
+    container_name: online-rental-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:80"
+
+volumes:
+  mysql_data:
+  backend_uploads:

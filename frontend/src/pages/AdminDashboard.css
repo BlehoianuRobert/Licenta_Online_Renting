@@ -5,14 +5,13 @@
 
 .admin-dashboard h1 {
   margin-bottom: var(--spacing-2xl);
-  color: var(--text-primary);
+  font-family: var(--font-display);
+  color: var(--silver);
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 800;
   text-align: center;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background: none;
+  -webkit-text-fill-color: unset;
   letter-spacing: -0.02em;
   position: relative;
   padding-bottom: var(--spacing-lg);
@@ -32,22 +31,20 @@
 
 .admin-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
   gap: var(--spacing-xl);
   margin-bottom: var(--spacing-3xl);
 }
 
 .admin-card {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  background: var(--card-bg);
   padding: var(--spacing-2xl);
-  border-radius: var(--border-radius-lg);
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-catalog, var(--border-radius-lg));
+  box-shadow: var(--shadow-md), 0 0 0 1px var(--border-glow);
   text-decoration: none;
   color: inherit;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid var(--border-glow);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -83,13 +80,9 @@
 }
 
 .admin-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04),
-    0 0 0 1px rgba(99, 102, 241, 0.1),
-    0 0 40px rgba(99, 102, 241, 0.15);
-  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg), 0 0 48px rgba(79, 110, 247, 0.15);
+  border-color: rgba(79, 110, 247, 0.35);
 }
 
 .admin-card:hover::before {
@@ -128,15 +121,13 @@
 }
 
 .admin-section {
-  background: var(--bg-primary);
+  background: var(--card-bg);
   padding: var(--spacing-2xl);
-  border-radius: var(--border-radius-lg);
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-catalog, var(--border-radius-lg));
+  box-shadow: var(--shadow-md), 0 0 0 1px var(--border-glow);
   width: 100%;
   margin: 0 auto;
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid var(--border-glow);
   position: relative;
   overflow: hidden;
 }
@@ -172,7 +163,7 @@
   font-size: var(--font-size-sm);
   line-height: 1.6;
   padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  border-bottom: 1px solid var(--border-glow);
 }
 
 .promote-form {
@@ -203,8 +194,8 @@
 }
 
 .message.success {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
-  color: #065f46;
+  background: var(--success-light);
+  color: #a7f3d0;
   border-color: #10b981;
 }
 
@@ -214,8 +205,8 @@
 }
 
 .message.error {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
-  color: #991b1b;
+  background: var(--error-light);
+  color: #fecaca;
   border-color: #ef4444;
 }
 
@@ -232,8 +223,9 @@
 .users-table-container {
   overflow-x: auto;
   border-radius: var(--border-radius);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  background: #ffffff;
+  border: 1px solid var(--border-glow);
+  background: var(--card-bg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .users-table {
@@ -243,7 +235,7 @@
 }
 
 .users-table thead {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: rgba(79, 110, 247, 0.1);
 }
 
 .users-table th {
@@ -254,17 +246,17 @@
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 2px solid rgba(226, 232, 240, 0.8);
+  border-bottom: 2px solid var(--border-glow);
   white-space: nowrap;
 }
 
 .users-table tbody tr {
-  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  border-bottom: 1px solid var(--border-glow);
   transition: all 0.2s ease;
 }
 
 .users-table tbody tr:hover {
-  background: linear-gradient(90deg, rgba(99, 102, 241, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
+  background: rgba(79, 110, 247, 0.08);
 }
 
 .users-table tbody tr:last-child {

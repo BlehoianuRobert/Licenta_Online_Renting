@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { productService } from '../services/productService';
 import { Product } from '../types';
@@ -15,6 +15,7 @@ const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
   // Read filters from URL query params
   const filters = {
@@ -27,6 +28,16 @@ const ProductsPage: React.FC = () => {
     sortBy: (searchParams.get('sortBy') as 'relevance' | 'priceAsc' | 'priceDesc' | 'nameAsc' | 'newest' | null) || 'relevance',
   };
 
+  const hasActiveServerFilters = Boolean(
+    filters.category ||
+      filters.brand ||
+      filters.model ||
+      filters.search ||
+      typeof filters.minPrice === 'number' ||
+      typeof filters.maxPrice === 'number' ||
+      (filters.sortBy && filters.sortBy !== 'relevance')
+  );
+
   useEffect(() => {
     loadProducts();
   }, [searchParams]);
@@ -35,11 +46,20 @@ const ProductsPage: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const data = await productService.getAllProducts({
+      const raw = await productService.getAllProducts({
         category: filters.category,
         brand: filters.brand,
         model: filters.model,
       });
+      const data: Product[] = Array.isArray(raw)
+        ? raw.map((p) => ({
+            ...p,
+            dailyPrice:
+              typeof p.dailyPrice === 'number'
+                ? p.dailyPrice
+                : parseFloat(String(p.dailyPrice ?? 0)) || 0,
+          }))
+        : [];
 
       const normalizedSearch = (filters.search || '').trim().toLowerCase();
       const filtered = data.filter((product) => {
@@ -80,7 +100,13 @@ const ProductsPage: React.FC = () => {
 
       setProducts(filtered);
     } catch (err: any) {
-      setError('Eroare la încărcarea produselor');
+      const status = err?.response?.status;
+      const detail = err?.response?.data?.message || err?.message;
+      setError(
+        status
+          ? `Eroare la încărcarea produselor (HTTP ${status}). ${detail || ''}`.trim()
+          : 'Eroare la încărcarea produselor. Verifică că API-ul rulează și deschizi aplicația pe portul corect (ex. http://localhost:3000 cu Docker).'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -112,6 +138,8 @@ const ProductsPage: React.FC = () => {
     navigate(newPath);
   };
 
+  const setGridView = useCallback(() => setViewMode('grid'), []);
+  const setListView = useCallback(() => setViewMode('list'), []);
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -123,68 +151,98 @@ const ProductsPage: React.FC = () => {
 
   return (
     <div className="products-page">
-      <div className="container">
-        <h1>Catalog Produse</h1>
-        
+      <div className="container catalog-page-inner">
+        <header className="catalog-page-header">
+          <div className="page-title-block">
+            <div className="page-eyebrow">Platformă de închiriere</div>
+            <h1>Catalog Produse</h1>
+            <p className="results-count">
+              <strong>{products.length}</strong>{' '}
+              {products.length === 1 ? 'produs' : 'produse'}
+              {hasActiveServerFilters ? ' după filtre' : ' disponibile'}
+            </p>
+          </div>
+          <div className="view-toggles" role="group" aria-label="Vizualizare catalog">
+            <button
+              type="button"
+              className={`view-btn${viewMode === 'grid' ? ' active' : ''}`}
+              title="Grid"
+              aria-pressed={viewMode === 'grid'}
+              onClick={setGridView}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className={`view-btn${viewMode === 'list' ? ' active' : ''}`}
+              title="List"
+              aria-pressed={viewMode === 'list'}
+              onClick={setListView}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <line x1="8" y1="6" x2="21" y2="6" />
+                <line x1="8" y1="12" x2="21" y2="12" />
+                <line x1="8" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="3.01" y2="6" />
+                <line x1="3" y1="12" x2="3.01" y2="12" />
+                <line x1="3" y1="18" x2="3.01" y2="18" />
+              </svg>
+            </button>
+          </div>
+        </header>
+
         <div className="products-layout">
-          <aside className="filters-sidebar">
+          <div className="catalog-filters-bar">
             <ProductFilters filters={filters} onFilterChange={handleFilterChange} />
-          </aside>
-          
+          </div>
+
           <main className="products-content">
-            {isLoading ? (
-              <LoadingSpinner />
-            ) : error ? (
-              <div className="error-message">{error}</div>
-            ) : (
-              <>
-                {Object.keys(filters).some(key => filters[key as keyof typeof filters]) && (
-                  <div className="results-info">
-                    <p>
-                      {products.length === 0 
-                        ? 'Nu s-au găsit produse pentru filtrele selectate'
-                        : `Găsite ${products.length} ${products.length === 1 ? 'produs' : 'produse'}`
-                      }
-                    </p>
+            {hasActiveServerFilters && products.length === 0 && (
+              <div className="results-info" role="status">
+                <p>Nu s-au găsit produse pentru filtrele selectate.</p>
+              </div>
+            )}
+
+            <div className={`products-grid${viewMode === 'list' ? ' products-grid--list' : ''}`}>
+              {products.map((product) => (
+                <Link key={product.id} to={`/products/${product.id}`} className="product-card">
+                  <div className="product-image">
+                    {product.imageUrl ? (
+                      <img src={getImageUrl(product.imageUrl)} alt={product.name} className="card-img" />
+                    ) : (
+                      <div className="product-placeholder card-img-placeholder" aria-hidden>
+                        📦
+                      </div>
+                    )}
+                    <span className="availability-badge badge-available">Disponibil</span>
                   </div>
-                )}
-                
-                <div className="products-grid">
-                  {products.map((product) => (
-                    <Link
-                      key={product.id}
-                      to={`/products/${product.id}`}
-                      className="product-card"
-                    >
-                      <div className="product-image">
-                        {product.imageUrl ? (
-                          <img src={getImageUrl(product.imageUrl)} alt={product.name} />
-                        ) : (
-                          <div className="product-placeholder">Fără imagine</div>
-                        )}
+                  <div className="product-info">
+                    <div className="product-tags card-tags">
+                      {product.brand && <span className="tag">{product.brand}</span>}
+                      {product.model && <span className="tag tag-model">{product.model}</span>}
+                      <span className="tag tag-cat">{product.category}</span>
+                    </div>
+                    <h3 className="card-title">{product.name}</h3>
+                    <p className="product-description card-desc">{product.description}</p>
+                    <div className="card-footer product-card-footer">
+                      <div className="price-block">
+                        <span className="price-amount">{formatCurrency(product.dailyPrice)}</span>
+                        <span className="price-per">/ zi</span>
                       </div>
-                      <div className="product-info">
-                        <h3>{product.name}</h3>
-                        <div className="product-meta">
-                          {product.brand && (
-                            <span className="product-brand">{product.brand}</span>
-                          )}
-                          {product.model && (
-                            <span className="product-model">{product.model}</span>
-                          )}
-                        </div>
-                        <p className="product-category">{product.category}</p>
-                        <p className="product-description">{product.description}</p>
-                        <p className="product-price">{formatCurrency(product.dailyPrice)}/zi</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-                
-                {products.length === 0 && !Object.keys(filters).some(key => filters[key as keyof typeof filters]) && (
-                  <p className="no-products">Nu există produse disponibile.</p>
-                )}
-              </>
+                      <span className="btn-rent">Detalii →</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {products.length === 0 && !hasActiveServerFilters && (
+              <p className="no-products">Nu există produse în baza de date folosită de aplicație.</p>
             )}
           </main>
         </div>

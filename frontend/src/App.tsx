@@ -29,7 +29,7 @@ function App() {
         <Layout>
           <Routes>
             {/* Public Routes */}
-            <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.PRODUCTS} replace />} />
+            <Route path={ROUTES.HOME} element={<HomePage />} />
             <Route path={ROUTES.LOGIN} element={<LoginPage />} />
             <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
             <Route path={ROUTES.PRODUCTS} element={<ProductsPage />} />

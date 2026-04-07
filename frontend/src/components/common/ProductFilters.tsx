@@ -48,15 +48,14 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({ filters, onFilterChange
     }
   }, [filters.category, filters.brand, filters.model]);
 
-  // Auto-select brand if only one brand is available
   useEffect(() => {
     if (brands.length === 1 && !pendingFilters.brand && pendingFilters.category && !loadingBrands) {
       const singleBrand = brands[0];
       setPendingFilters({
         ...pendingFilters,
         category: pendingFilters.category,
-        brand: singleBrand, 
-        model: undefined 
+        brand: singleBrand,
+        model: undefined,
       });
     }
   }, [brands.length, loadingBrands, pendingFilters.category, pendingFilters.brand]);
@@ -86,7 +85,6 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({ filters, onFilterChange
       setLoadingBrands(true);
       const data = await productService.getBrands(category);
       setBrands(data);
-      // Reset brand and model if category changes
       if (activeFilters.brand && !data.includes(activeFilters.brand)) {
         setPendingFilters((prev) => ({ ...prev, category, brand: undefined, model: undefined }));
       }
@@ -106,7 +104,6 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({ filters, onFilterChange
       setLoadingModels(true);
       const data = await productService.getModels(category, brand);
       setModels(data);
-      // Reset model if brand changes
       if (activeFilters.model && !data.includes(activeFilters.model)) {
         setPendingFilters((prev) => ({ ...prev, category, brand, model: undefined }));
       }
@@ -146,194 +143,207 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({ filters, onFilterChange
 
   const hasActiveFilters = Boolean(
     pendingFilters.category ||
-    pendingFilters.brand ||
-    pendingFilters.model ||
-    pendingFilters.search ||
-    pendingFilters.minPrice ||
-    pendingFilters.maxPrice ||
-    (pendingFilters.sortBy && pendingFilters.sortBy !== 'relevance')
+      pendingFilters.brand ||
+      pendingFilters.model ||
+      pendingFilters.search ||
+      pendingFilters.minPrice ||
+      pendingFilters.maxPrice ||
+      (pendingFilters.sortBy && pendingFilters.sortBy !== 'relevance')
   );
 
-  const hasPendingChanges = JSON.stringify({
-    ...pendingFilters,
-    sortBy: pendingFilters.sortBy || 'relevance',
-  }) !== JSON.stringify({
-    ...filters,
-    sortBy: filters.sortBy || 'relevance',
-  });
+  const hasPendingChanges =
+    JSON.stringify({
+      ...pendingFilters,
+      sortBy: pendingFilters.sortBy || 'relevance',
+    }) !==
+    JSON.stringify({
+      ...filters,
+      sortBy: filters.sortBy || 'relevance',
+    });
 
   return (
-    <div className="product-filters">
-      <div className="filters-header">
-        <h2>Filtre</h2>
-        {hasActiveFilters && (
-          <button className="clear-filters-btn" onClick={clearFilters}>
-            Reseteaza filtrele
-          </button>
-        )}
-      </div>
+    <div className="product-filters product-filters--horizontal" role="search" aria-label="Filtre catalog produse">
+      <h2 className="filters-sr-only">Filtre</h2>
 
-      <div className="filter-section">
-        <h3 className="filter-section-title">Cautare produs</h3>
-        <input
-          className="filter-input"
-          type="text"
-          placeholder="Nume, descriere, brand, model..."
-          value={pendingFilters.search || ''}
-          onChange={(e) =>
-            setPendingFilters({
-              ...pendingFilters,
-              search: e.target.value || undefined,
-            })
-          }
-        />
-      </div>
-
-      <div className="filter-section">
-        <h3 className="filter-section-title">Pret pe zi</h3>
-        <div className="price-inputs">
-          <input
-            className="filter-input"
-            type="number"
-            min={0}
-            placeholder="Min"
-            value={pendingFilters.minPrice ?? ''}
-            onChange={(e) =>
-              setPendingFilters({
-                ...pendingFilters,
-                minPrice: e.target.value ? Number(e.target.value) : undefined,
-              })
-            }
-          />
-          <input
-            className="filter-input"
-            type="number"
-            min={0}
-            placeholder="Max"
-            value={pendingFilters.maxPrice ?? ''}
-            onChange={(e) =>
-              setPendingFilters({
-                ...pendingFilters,
-                maxPrice: e.target.value ? Number(e.target.value) : undefined,
-              })
-            }
-          />
-        </div>
-      </div>
-
-      <div className="filter-section">
-        <h3 className="filter-section-title">Sortare</h3>
-        <select
-          className="filter-select"
-          value={pendingFilters.sortBy || 'relevance'}
-          onChange={(e) =>
-            setPendingFilters({
-              ...pendingFilters,
-              sortBy: e.target.value as
-                | 'relevance'
-                | 'priceAsc'
-                | 'priceDesc'
-                | 'nameAsc'
-                | 'newest',
-            })
-          }
-        >
-          <option value="relevance">Relevanta</option>
-          <option value="priceAsc">Pret crescator</option>
-          <option value="priceDesc">Pret descrescator</option>
-          <option value="nameAsc">Nume A-Z</option>
-          <option value="newest">Cele mai noi</option>
-        </select>
-      </div>
-
-      <div className="filter-section">
-        <h3 className="filter-section-title">Categorie</h3>
-        <div className="filter-options">
-          {categories.map((category) => (
-            <label key={category} className="filter-option">
-              <input
-                type="checkbox"
-                checked={pendingFilters.category === category}
-                onChange={() => handleCategoryChange(category)}
-              />
-              <span>{category}</span>
+      <div className="filters-toolbar">
+        <div className="filters-flex-row filters-flex-row--primary">
+          <div className="filter-group filter-group--search">
+            <label className="filter-inline-label" htmlFor="filter-search-input">
+              Căutare produs
             </label>
-          ))}
-          {categories.length === 0 && (
-            <p className="no-options">Nu există categorii disponibile</p>
-          )}
-        </div>
-      </div>
+            <input
+              id="filter-search-input"
+              className="filter-input"
+              type="search"
+              placeholder="Nume, descriere, brand, model…"
+              value={pendingFilters.search || ''}
+              onChange={(e) =>
+                setPendingFilters({
+                  ...pendingFilters,
+                  search: e.target.value || undefined,
+                })
+              }
+            />
+          </div>
 
-      {pendingFilters.category && brands.length > 1 && (
-        <div className="filter-section">
-          <h3 className="filter-section-title">Brand</h3>
-          {loadingBrands ? (
-            <div className="loading-filters">Se încarcă...</div>
-          ) : (
-            <div className="filter-options">
-              {brands.map((brand) => (
-                <label key={brand} className="filter-option">
+          <div className="filter-group filter-group--price">
+            <span className="filter-inline-label" id="filter-price-label">
+              Preț / zi (RON)
+            </span>
+            <div className="price-inputs price-inputs--inline" role="group" aria-labelledby="filter-price-label">
+              <input
+                id="filter-min-price"
+                className="filter-input filter-input--price"
+                type="number"
+                min={0}
+                placeholder="Min"
+                aria-label="Preț minim"
+                value={pendingFilters.minPrice ?? ''}
+                onChange={(e) =>
+                  setPendingFilters({
+                    ...pendingFilters,
+                    minPrice: e.target.value ? Number(e.target.value) : undefined,
+                  })
+                }
+              />
+              <input
+                id="filter-max-price"
+                className="filter-input filter-input--price"
+                type="number"
+                min={0}
+                placeholder="Max"
+                aria-label="Preț maxim"
+                value={pendingFilters.maxPrice ?? ''}
+                onChange={(e) =>
+                  setPendingFilters({
+                    ...pendingFilters,
+                    maxPrice: e.target.value ? Number(e.target.value) : undefined,
+                  })
+                }
+              />
+            </div>
+          </div>
+
+          <div className="filter-group filter-group--sort">
+            <label className="filter-inline-label" htmlFor="filter-sort-select">
+              Sortare
+            </label>
+            <select
+              id="filter-sort-select"
+              className="filter-select"
+              value={pendingFilters.sortBy || 'relevance'}
+              onChange={(e) =>
+                setPendingFilters({
+                  ...pendingFilters,
+                  sortBy: e.target.value as
+                    | 'relevance'
+                    | 'priceAsc'
+                    | 'priceDesc'
+                    | 'nameAsc'
+                    | 'newest',
+                })
+              }
+            >
+              <option value="relevance">Relevanță</option>
+              <option value="priceAsc">Preț crescător</option>
+              <option value="priceDesc">Preț descrescător</option>
+              <option value="nameAsc">Nume A-Z</option>
+              <option value="newest">Cele mai noi</option>
+            </select>
+          </div>
+
+          <div className="filter-group filter-group--actions">
+            <button
+              type="button"
+              className="btn btn-secondary btn-filter-action"
+              onClick={clearFilters}
+              disabled={!hasActiveFilters}
+            >
+              Resetează
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary btn-filter-action"
+              onClick={() => onFilterChange(pendingFilters)}
+              disabled={!hasPendingChanges}
+            >
+              Aplică
+            </button>
+          </div>
+        </div>
+
+        <div className="filters-flex-row filters-flex-row--secondary">
+          <div className="filter-secondary-block">
+            <span className="filter-inline-label filter-inline-label--row">Categorie</span>
+            <div className="filter-options filter-options--horizontal">
+              {categories.map((category) => (
+                <label key={category} className="filter-option">
                   <input
                     type="checkbox"
-                    checked={pendingFilters.brand === brand}
-                    onChange={() => handleBrandChange(brand)}
+                    checked={pendingFilters.category === category}
+                    onChange={() => handleCategoryChange(category)}
                   />
-                  <span>{brand}</span>
+                  <span>{category}</span>
                 </label>
               ))}
-              {brands.length === 0 && (
-                <p className="no-options">Nu există branduri disponibile pentru această categorie</p>
+              {categories.length === 0 && <p className="no-options">Nu există categorii</p>}
+            </div>
+          </div>
+
+          {pendingFilters.category && brands.length > 1 && (
+            <div className="filter-secondary-block">
+              <span className="filter-inline-label filter-inline-label--row">Brand</span>
+              {loadingBrands ? (
+                <div className="loading-filters">Se încarcă…</div>
+              ) : (
+                <div className="filter-options filter-options--horizontal">
+                  {brands.map((brand) => (
+                    <label key={brand} className="filter-option">
+                      <input
+                        type="checkbox"
+                        checked={pendingFilters.brand === brand}
+                        onChange={() => handleBrandChange(brand)}
+                      />
+                      <span>{brand}</span>
+                    </label>
+                  ))}
+                  {brands.length === 0 && (
+                    <p className="no-options">Nu există branduri pentru această categorie</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {pendingFilters.category && pendingFilters.brand && (
+            <div className="filter-secondary-block">
+              <span className="filter-inline-label filter-inline-label--row">Model</span>
+              {loadingModels ? (
+                <div className="loading-filters">Se încarcă…</div>
+              ) : (
+                <div className="filter-options filter-options--horizontal">
+                  {models.map((model) => (
+                    <label key={model} className="filter-option">
+                      <input
+                        type="checkbox"
+                        checked={pendingFilters.model === model}
+                        onChange={() => handleModelChange(model)}
+                      />
+                      <span>{model}</span>
+                    </label>
+                  ))}
+                  {models.length === 0 && (
+                    <p className="no-options">Nu există modele pentru acest brand</p>
+                  )}
+                </div>
               )}
             </div>
           )}
         </div>
-      )}
-
-      {pendingFilters.category && pendingFilters.brand && (
-        <div className="filter-section">
-          <h3 className="filter-section-title">Model</h3>
-          {loadingModels ? (
-            <div className="loading-filters">Se încarcă...</div>
-          ) : (
-            <div className="filter-options">
-              {models.map((model) => (
-                <label key={model} className="filter-option">
-                  <input
-                    type="checkbox"
-                    checked={pendingFilters.model === model}
-                    onChange={() => handleModelChange(model)}
-                  />
-                  <span>{model}</span>
-                </label>
-              ))}
-              {models.length === 0 && (
-                <p className="no-options">Nu există modele disponibile pentru acest brand</p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="filters-actions">
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={clearFilters}
-        >
-          Reseteaza
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => onFilterChange(pendingFilters)}
-          disabled={!hasPendingChanges}
-        >
-          Aplica filtrele
-        </button>
       </div>
+
       {hasPendingChanges && (
-        <p className="pending-changes-indicator">Ai modificari neaplicate.</p>
+        <p className="pending-changes-indicator">Ai modificări neaplicate — apasă „Aplică”.</p>
       )}
     </div>
   );

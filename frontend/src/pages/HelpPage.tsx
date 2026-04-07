@@ -1,4 +1,5 @@
 import React from 'react';
+import { APP_DISPLAY_NAME } from '../utils/constants';
 import './HelpPage.css';
 
 const HelpPage: React.FC = () => {
@@ -52,9 +53,9 @@ const HelpPage: React.FC = () => {
         <section className="help-section">
           <h2>Despre platforma</h2>
           <p>
-            Online Rental System este o platforma pentru inchirierea produselor
-            tech. Scopul nostru este sa oferim acces rapid la echipamente moderne,
-            fara costul integral al achizitiei.
+            {APP_DISPLAY_NAME} este o platforma pentru inchirierea produselor tech.
+            Scopul nostru este sa oferim acces rapid la echipamente moderne, fara
+            costul integral al achizitiei.
           </p>
         </section>
 

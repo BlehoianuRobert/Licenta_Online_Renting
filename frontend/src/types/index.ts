@@ -132,6 +132,12 @@ export interface Rental {
   estimatedDeliveryDate?: string;
   actualDeliveryDate?: string;
   pickupDate?: string;
+  /** La predare (când primești dispozitivul) */
+  handoverPhotoUrls?: string[];
+  /** Înainte de returnare */
+  preReturnPhotoUrls?: string[];
+  aiComparisonJson?: string | null;
+  aiComparisonAt?: string | null;
 }
 
 export interface RentalRequest {

@@ -1,34 +1,47 @@
 .help-page {
   padding: var(--spacing-2xl) 0;
+  position: relative;
+  z-index: 1;
 }
 
 .help-hero {
-  background: linear-gradient(135deg, #ffffff, #f8fafc);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: var(--border-radius-lg);
+  background: var(--card-bg);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius-catalog);
   padding: var(--spacing-xl);
   margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-md), 0 0 40px rgba(79, 110, 247, 0.06);
 }
 
 .help-hero h1 {
   margin: 0 0 var(--spacing-sm);
+  font-family: var(--font-display);
 }
 
 .help-hero p {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--muted);
+  line-height: 1.65;
 }
 
 .help-section {
-  background: #fff;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: var(--border-radius-lg);
+  background: var(--card-bg);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius-catalog);
   padding: var(--spacing-xl);
   margin-bottom: var(--spacing-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.help-section:hover {
+  border-color: rgba(79, 110, 247, 0.22);
 }
 
 .help-section h2 {
   margin: 0 0 var(--spacing-md);
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
 }
 
 .help-cards {
@@ -38,24 +51,40 @@
 }
 
 .help-card {
-  background: #f8fafc;
-  border: 1px solid rgba(226, 232, 240, 0.9);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glow);
   border-radius: var(--border-radius);
   padding: var(--spacing-md);
+  transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.help-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(79, 110, 247, 0.25);
+  box-shadow: 0 0 24px rgba(79, 110, 247, 0.08);
 }
 
 .help-card h3 {
   margin: 0 0 var(--spacing-xs);
   font-size: var(--font-size-base);
+  color: var(--silver);
 }
 
 .help-card p {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.55;
 }
 
 .help-list {
   margin: 0;
   padding-left: 1.1rem;
-  color: var(--text-secondary);
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.help-section > p {
+  color: var(--muted);
+  line-height: 1.65;
 }

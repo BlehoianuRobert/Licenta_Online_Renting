@@ -1,6 +1,9 @@
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081/api/v1';
 export const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
 
+/** Product name shown in the UI and browser title */
+export const APP_DISPLAY_NAME = 'Online Rental System' as const;
+
 export const STORAGE_KEYS = {
   TOKEN: 'auth_token',
   USER: 'user_data',

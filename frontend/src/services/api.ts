@@ -33,12 +33,15 @@ api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      const requestUrl = String(error.config?.url || '');
       const requestMethod = String(error.config?.method || 'get').toLowerCase();
+      const base = String(error.config?.baseURL || '');
+      const path = String(error.config?.url || '');
+      const fullUrl = path.startsWith('http') ? path : `${base.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 
       const isPublicProductRead =
         requestMethod === 'get' &&
-        (/^\/products(\/.*)?$/.test(requestUrl) || /^\/products\/\d+\/reviews(\/summary)?$/.test(requestUrl));
+        /\/products(\/|$|\?)/.test(fullUrl) &&
+        !/\/products\/my(\/|$|\?)/.test(fullUrl);
 
       // Keep user logged in for public catalog requests even if backend returns 401 unexpectedly.
       if (!isPublicProductRead) {

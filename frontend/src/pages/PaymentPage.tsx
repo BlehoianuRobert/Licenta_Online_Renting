@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, Stripe } from '@stripe/stripe-js';
 import {
   Elements,
   CardElement,
@@ -15,8 +15,15 @@ import { formatCurrency } from '../utils/helpers';
 import { STRIPE_PUBLISHABLE_KEY, ROUTES } from '../utils/constants';
 import './PaymentPage.css';
 
-// Initialize Stripe
-const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
+function useStripeLoader(): Promise<Stripe | null> | null {
+  return useMemo(() => {
+    const key = (STRIPE_PUBLISHABLE_KEY || '').trim();
+    if (!key) {
+      return null;
+    }
+    return loadStripe(key);
+  }, []);
+}
 
 // Payment Form Component
 const PaymentForm: React.FC<{ rentalId: number; amount: number; clientSecret: string }> = ({ 
@@ -140,6 +147,7 @@ const PaymentForm: React.FC<{ rentalId: number; amount: number; clientSecret: st
 const PaymentPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
+  const stripePromise = useStripeLoader();
   const [rental, setRental] = useState<Rental | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -203,6 +211,27 @@ const PaymentPage: React.FC = () => {
     );
   }
 
+  if (!stripePromise) {
+    return (
+      <div className="payment-page">
+        <div className="container">
+          <div className="error-container">
+            <h2>Stripe nu este configurat</h2>
+            <p>
+              Cheia publică Stripe lipsește la build (variabila <code>VITE_STRIPE_PUBLISHABLE_KEY</code>).
+              Creează fișierul <code>.env</code> lângă <code>docker-compose.yml</code> (vezi <code>docker.env.example</code>),
+              apoi rulează <code>docker compose build --no-cache frontend</code>.
+            </p>
+            <p>
+              Dacă cheia există dar plata tot nu merge, dezactivează adblocker-ul pentru acest site — uneori blochează
+              domeniile Stripe (<code>js.stripe.com</code>, <code>r.stripe.com</code>).
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const amount = searchParams.get('amount') 
     ? parseFloat(searchParams.get('amount')!) 
     : rental.totalPrice;
@@ -231,6 +260,9 @@ const PaymentPage: React.FC = () => {
         </div>
 
         <div className="payment-container">
+          <p className="payment-stripe-hint">
+            Dacă formularul de card nu apare, încearcă să dezactivezi extensiile de tip adblocker pentru localhost.
+          </p>
           <Elements stripe={stripePromise} options={{ clientSecret }}>
             <PaymentForm 
               rentalId={rental.id} 

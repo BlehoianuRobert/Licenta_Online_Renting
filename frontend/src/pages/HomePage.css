@@ -1,83 +1,106 @@
 .home-page {
   padding: var(--spacing-3xl) var(--spacing-lg);
-  min-height: calc(100vh - 200px);
+  min-height: calc(100vh - 140px);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-}
-
-.home-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
-  z-index: 0;
-  pointer-events: none;
+  z-index: 1;
 }
 
 .hero-section {
-  max-width: 900px;
+  max-width: min(640px, 100%);
   margin: 0 auto;
   text-align: center;
-  padding: var(--spacing-3xl) 0;
+  padding: clamp(2.25rem, 5vw, 3.25rem) clamp(1.75rem, 4vw, 3rem);
   position: relative;
   z-index: 1;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: var(--border-radius-lg);
-  padding: var(--spacing-3xl);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--card-bg);
+  border-radius: var(--radius-catalog);
+  border: 1px solid var(--border-glow);
+  box-shadow: var(--shadow-lg), 0 0 60px rgba(79, 110, 247, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-slow);
+}
+
+.hero-section:hover {
+  border-color: rgba(79, 110, 247, 0.28);
+  box-shadow: var(--shadow-xl), 0 0 80px rgba(79, 110, 247, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.hero-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--electric2);
+  margin: 0 0 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  width: 20px;
+  height: 2px;
+  background: var(--electric);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(79, 110, 247, 0.6);
 }
 
 .hero-section h2 {
-  font-size: var(--font-size-4xl);
-  margin-bottom: var(--spacing-lg);
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4.5vw, 2.35rem);
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -1px;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  margin: 0 0 1rem;
+  color: var(--silver);
+  background: none;
+  -webkit-text-fill-color: unset;
 }
 
-.hero-section p {
-  font-size: var(--font-size-xl);
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-2xl);
-  line-height: 1.6;
-  max-width: 600px;
+.hero-lead {
+  font-size: clamp(1rem, 2.2vw, 1.1rem);
+  font-weight: 400;
+  color: var(--muted);
+  margin: 0 0 2rem;
+  line-height: var(--line-height-relaxed);
+  max-width: 520px;
   margin-left: auto;
   margin-right: auto;
 }
 
-.btn-large {
-  padding: 1.125rem 2.5rem;
-  font-size: var(--font-size-lg);
+.hero-cta.btn-large {
+  padding: 1.05rem 2.35rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  box-shadow: var(--shadow-lg);
+  letter-spacing: 0.02em;
+  border-radius: 10px;
+  box-shadow: var(--shadow-glow-strong);
+  transition: transform var(--transition-base), box-shadow var(--transition-base), filter var(--transition-base);
 }
 
-.btn-large:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-xl);
+.hero-cta.btn-large:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(79, 110, 247, 0.45), 0 0 48px rgba(79, 110, 247, 0.25);
+  filter: brightness(1.06);
+}
+
+.hero-cta.btn-large:focus-visible {
+  outline: 2px solid var(--electric2);
+  outline-offset: 3px;
 }
 
 @media (max-width: 768px) {
-  .hero-section h2 {
-    font-size: var(--font-size-3xl);
+  .home-page {
+    padding: var(--spacing-xl) var(--spacing-md);
   }
-  
-  .hero-section p {
-    font-size: var(--font-size-lg);
+
+  .hero-section {
+    padding: var(--spacing-xl) var(--spacing-lg);
   }
 }

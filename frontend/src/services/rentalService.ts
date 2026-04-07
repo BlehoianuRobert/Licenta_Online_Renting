@@ -41,4 +41,22 @@ export const rentalService = {
     const response = await api.post<ApiResponse>(`/rentals/${id}/generate-awb`);
     return response.data;
   },
+
+  uploadRentalPhotos: async (
+    rentalId: number,
+    phase: 'HANDOVER' | 'PRE_RETURN',
+    files: File[]
+  ): Promise<string[]> => {
+    const formData = new FormData();
+    formData.append('phase', phase);
+    files.forEach((f) => formData.append('files', f));
+    const response = await api.post<string[]>(`/rentals/${rentalId}/photos`, formData);
+    return response.data;
+  },
+
+  /** Răspuns JSON de la serviciul AI (obiect sau text, după cum îl trimite backend-ul). */
+  compareRentalPhotos: async (rentalId: number): Promise<unknown> => {
+    const response = await api.post<unknown>(`/rentals/${rentalId}/compare-photos`);
+    return response.data;
+  },
 };

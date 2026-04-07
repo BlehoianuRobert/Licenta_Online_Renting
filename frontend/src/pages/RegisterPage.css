@@ -1,48 +1,32 @@
 .register-page {
-  min-height: calc(100vh - 200px);
+  min-height: calc(100vh - 120px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xl);
-  background: 
-    linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, rgba(139, 92, 246, 0.9) 50%, rgba(236, 72, 153, 0.9) 100%),
-    url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029') center/cover no-repeat;
-  background-blend-mode: overlay;
+  background: transparent;
   position: relative;
   overflow: hidden;
-}
-
-.register-page::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-  background-size: 50px 50px;
-  animation: move 20s linear infinite;
-}
-
-@keyframes move {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(50px, 50px); }
+  z-index: 1;
 }
 
 .register-container {
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--card-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   padding: var(--spacing-3xl);
-  border-radius: var(--border-radius-lg);
-  box-shadow:
-    0 20px 45px rgba(15, 23, 42, 0.2),
-    0 2px 8px rgba(15, 23, 42, 0.08);
+  border-radius: var(--radius-catalog);
+  box-shadow: var(--shadow-lg), 0 0 60px rgba(79, 110, 247, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   width: 100%;
   max-width: 550px;
   position: relative;
   z-index: 1;
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid var(--border-glow);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.register-container:hover {
+  border-color: rgba(79, 110, 247, 0.25);
 }
 
 .auth-header {
@@ -63,13 +47,12 @@
 .auth-header h2 {
   text-align: center;
   margin-bottom: var(--spacing-xs);
-  color: var(--text-primary);
+  color: var(--silver);
+  font-family: var(--font-display);
   font-size: var(--font-size-3xl);
   font-weight: 800;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background: none;
+  -webkit-text-fill-color: unset;
 }
 
 .auth-subtitle {
@@ -92,16 +75,17 @@
 
 .form-input {
   height: 44px;
-  border: 1px solid rgba(203, 213, 225, 0.9);
+  border: 1px solid var(--border-glow);
   border-radius: 12px;
   padding: 0 14px;
-  background: #fff;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--silver);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), background var(--transition-base);
 }
 
 select.form-input {
   padding-right: 36px;
-  color: var(--text-primary);
+  color: var(--silver);
   font-size: var(--font-size-base);
   text-indent: 0;
   text-overflow: clip;
@@ -109,10 +93,16 @@ select.form-input {
   overflow: visible;
 }
 
+select.form-input option {
+  background: var(--ink2);
+  color: var(--silver);
+}
+
 .form-input:focus {
-  border-color: rgba(99, 102, 241, 0.65);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+  border-color: var(--electric);
+  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.2);
   outline: none;
+  background: rgba(79, 110, 247, 0.06);
 }
 
 .form-hint {

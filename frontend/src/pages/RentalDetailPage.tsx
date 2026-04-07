@@ -7,6 +7,7 @@ import { formatDate, formatCurrency } from '../utils/helpers';
 import { RENTAL_STATUSES } from '../utils/constants';
 import { ROUTES } from '../utils/constants';
 import { useAuth } from '../context/AuthContext';
+import { getImageUrl } from '../utils/imageHelper';
 import './RentalDetailPage.css';
 
 const RentalDetailPage: React.FC = () => {
@@ -14,6 +15,11 @@ const RentalDetailPage: React.FC = () => {
   const [rental, setRental] = useState<Rental | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user: currentUser } = useAuth();
+  const [handoverFiles, setHandoverFiles] = useState<File[]>([]);
+  const [preReturnFiles, setPreReturnFiles] = useState<File[]>([]);
+  const [photoBusy, setPhotoBusy] = useState<'handover' | 'preReturn' | null>(null);
+  const [compareBusy, setCompareBusy] = useState(false);
+  const [photoMsg, setPhotoMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -39,6 +45,71 @@ const RentalDetailPage: React.FC = () => {
 
   if (!rental) {
     return <div>Închirierea nu a fost găsită.</div>;
+  }
+
+  const isRenter = currentUser != null && Number(currentUser.id) === Number(rental.userId);
+  const canRunAiCompare =
+    isRenter ||
+    currentUser?.role === 'ROLE_ADMIN' ||
+    currentUser?.role === 'ROLE_SUPEROWNER';
+
+  const uploadHandover = async () => {
+    if (handoverFiles.length === 0) return;
+    setPhotoMsg(null);
+    setPhotoBusy('handover');
+    try {
+      await rentalService.uploadRentalPhotos(rental.id, 'HANDOVER', handoverFiles);
+      setHandoverFiles([]);
+      await loadRental();
+      setPhotoMsg('Fotografiile la predare au fost încărcate.');
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setPhotoMsg(msg || 'Eroare la încărcarea fotografiilor (predare).');
+    } finally {
+      setPhotoBusy(null);
+    }
+  };
+
+  const uploadPreReturn = async () => {
+    if (preReturnFiles.length === 0) return;
+    setPhotoMsg(null);
+    setPhotoBusy('preReturn');
+    try {
+      await rentalService.uploadRentalPhotos(rental.id, 'PRE_RETURN', preReturnFiles);
+      setPreReturnFiles([]);
+      await loadRental();
+      setPhotoMsg('Fotografiile înainte de returnare au fost încărcate.');
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setPhotoMsg(msg || 'Eroare la încărcarea fotografiilor (returnare).');
+    } finally {
+      setPhotoBusy(null);
+    }
+  };
+
+  const runCompare = async () => {
+    setPhotoMsg(null);
+    setCompareBusy(true);
+    try {
+      await rentalService.compareRentalPhotos(rental.id);
+      await loadRental();
+      setPhotoMsg('Comparația AI a fost rulată. Vezi rezultatul mai jos.');
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setPhotoMsg(msg || 'Eroare la comparația AI.');
+    } finally {
+      setCompareBusy(false);
+    }
+  };
+
+  let aiDisplay: string | null = null;
+  if (rental.aiComparisonJson) {
+    try {
+      const parsed = JSON.parse(rental.aiComparisonJson) as unknown;
+      aiDisplay = JSON.stringify(parsed, null, 2);
+    } catch {
+      aiDisplay = rental.aiComparisonJson;
+    }
   }
 
   return (
@@ -220,6 +291,105 @@ const RentalDetailPage: React.FC = () => {
                   </div>
                 )}
               </>
+            )}
+          </div>
+
+          <div className="rental-photos-section">
+            <h2 className="info-section-title">Fotografii închiriere</h2>
+            <p className="rental-photos-intro">
+              Ca <strong>chiriaș</strong>, încarcă poze la <strong>predare</strong> (când primești produsul) și{' '}
+              <strong>înainte de returnare</strong>. Proprietarul/adminul poate rula comparația AI după ce există ambele seturi.
+            </p>
+            {photoMsg && <div className="rental-photos-banner">{photoMsg}</div>}
+
+            <div className="rental-photo-grid">
+              <div>
+                <h3>La predare (HANDOVER)</h3>
+                <div className="rental-photo-thumbs">
+                  {(rental.handoverPhotoUrls || []).map((url) => (
+                    <a key={url} href={getImageUrl(url)} target="_blank" rel="noreferrer">
+                      <img src={getImageUrl(url)} alt="Predare" />
+                    </a>
+                  ))}
+                  {(rental.handoverPhotoUrls || []).length === 0 && (
+                    <span className="rental-photo-empty">Nicio fotografie încă</span>
+                  )}
+                </div>
+                {isRenter && (
+                  <div className="rental-photo-upload">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => setHandoverFiles(Array.from(e.target.files || []))}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      disabled={photoBusy === 'handover' || handoverFiles.length === 0}
+                      onClick={uploadHandover}
+                    >
+                      {photoBusy === 'handover' ? 'Se încarcă…' : 'Încarcă la predare'}
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div>
+                <h3>Înainte de returnare (PRE_RETURN)</h3>
+                <div className="rental-photo-thumbs">
+                  {(rental.preReturnPhotoUrls || []).map((url) => (
+                    <a key={url} href={getImageUrl(url)} target="_blank" rel="noreferrer">
+                      <img src={getImageUrl(url)} alt="Înainte de returnare" />
+                    </a>
+                  ))}
+                  {(rental.preReturnPhotoUrls || []).length === 0 && (
+                    <span className="rental-photo-empty">Nicio fotografie încă</span>
+                  )}
+                </div>
+                {isRenter && (
+                  <div className="rental-photo-upload">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => setPreReturnFiles(Array.from(e.target.files || []))}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      disabled={photoBusy === 'preReturn' || preReturnFiles.length === 0}
+                      onClick={uploadPreReturn}
+                    >
+                      {photoBusy === 'preReturn' ? 'Se încarcă…' : 'Încarcă înainte de returnare'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {canRunAiCompare && (
+              <div className="rental-ai-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={compareBusy}
+                  onClick={runCompare}
+                >
+                  {compareBusy ? 'Se analizează…' : 'Compară fotografiile cu AI'}
+                </button>
+              </div>
+            )}
+
+            {aiDisplay && (
+              <div className="rental-ai-result">
+                <h3>Rezultat comparație AI</h3>
+                {rental.aiComparisonAt && (
+                  <p className="rental-ai-meta">
+                    {new Date(rental.aiComparisonAt).toLocaleString('ro-RO')}
+                  </p>
+                )}
+                <pre>{aiDisplay}</pre>
+              </div>
             )}
           </div>
         </div>
